@@ -5,7 +5,7 @@
   "homepage": "https://1leha.github.io/lapDevelopments",
   "scripts": {
     "start": "parcel src/*.html",
-   "build": "parcel build src/*.html --public-url /lapDevelopments/"
+    "build": "parcel build src/*.html --public-url /lapDevelopments/"
   },
   "repository": {
     "type": "git",
@@ -15,9 +15,10 @@
   "author": "Alexey Lisovoy <alexey.lisovoy2011@gmail.com>",
   "license": "ISC",
   "bugs": {
-   "url": "https://github.com/1leha/lapDevelopments/issues"
+    "url": "https://github.com/1leha/lapDevelopments/issues"
   },
   "dependencies": {
+    "firebase": "^9.12.1",
     "flatpickr": "^4.6.13",
     "modern-normalize": "^1.1.0",
     "notiflix": "^3.2.5"
@@ -26,7 +27,8 @@
     "@parcel/transformer-sass": "^2.6.0",
     "parcel": "^2.6.0",
     "parcel-reporter-clean-dist": "^1.0.4",
-    "posthtml-include": "^1.7.4"
+    "posthtml-include": "^1.7.4",
+    "process": "^0.11.10"
   },
   "browserslist": "> 0.5%, last 2 versions, not dead"
 }

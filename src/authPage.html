@@ -4,11 +4,130 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="./sass/index.scss" />
+    <script type="module" src="./index.js"></script>
+
     <title>Firebase Auth Test</title>
   </head>
+
   <body>
     <a href="./index.html">Back</a>
-    <h1>Firebase auth test</h1>
-    <h2>In this sample I use the Firebase to save som data from my form.</h2>
+
+    <div class="container">
+      <h1>Firebase auth test</h1>
+      <h2>In this sample I use the Firebase to save some data from my form.</h2>
+
+      <form class="login-form wrapper" name="authForm">
+        <div class="wrapper login-form__inputs-list">
+          <input
+            class="login-form__input"
+            type="email"
+            name="userEmail"
+            placeholder="John Smith"
+          />
+          <input
+            class="login-form__input"
+            type="password"
+            name="userPass"
+            placeholder="Password"
+          />
+        </div>
+
+        <div class="wrapper login-form__buttons">
+          <button class="login-form__button" type="submit" name="signInButton">
+            Sign In
+          </button>
+          <button class="login-form__button" type="button" name="signUpButton">
+            Sign Up
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="container active-user is-logined">
+      <h3 class="active-user__title">Active user</h3>
+      <ul class="active-user__fields">
+        <li class="active-user__item">
+          User Id:
+          <span class="active-user__value" data-firebaseValue="id"></span>
+        </li>
+
+        <li class="active-user__item">
+          User name:
+          <span class="active-user__value" data-firebaseValue="Name"></span>
+        </li>
+
+        <li class="active-user__item">
+          E-mail:
+          <span class="active-user__value" data-firebaseValue="email"></span>
+        </li>
+
+        <li class="active-user__item">
+          Phone:
+          <span class="active-user__value" data-firebaseValue="phone"></span>
+        </li>
+
+        <li class="active-user__item">
+          Story:
+          <span class="active-user__value" data-firebaseValue="story"></span>
+        </li>
+      </ul>
+    </div>
+
+    <section class="data">
+      <div class="container">
+        <form class="data__form">
+          <label class="data__label">
+            Name
+            <input class="data__input" type="text" name="userName" />
+          </label>
+
+          <label class="data__label">
+            E-mail
+            <input class="data__input" type="email" name="email" />
+          </label>
+
+          <label class="data__label">
+            Phone
+            <input class="data__input" type="tel" name="phone" />
+          </label>
+
+          <label class="data__label">
+            Tell me about youself a little, please!
+            <textarea
+              class="data__input data__textarea"
+              name="userStory"
+              rows="5"
+            ></textarea>
+          </label>
+
+          <div class="data__buttons buttons">
+            <button class="button" type="submit" data-firebase="saveToFirebase">
+              Save info into Firebase
+            </button>
+            <button
+              class="button"
+              type="button"
+              data-firebase="readFromFirebase"
+            >
+              Read info from Firebase
+            </button>
+            <button class="button" type="button" data-firebase="clearFirebase">
+              Clear info in Firebase
+            </button>
+          </div>
+
+          <div class="data__locale-storage-buttons buttons">
+            <button class="locale-storage-button button" type="button">
+              Copy info from Firebase to LocaleStorage
+            </button>
+            <button class="locale-storage-button button" type="button">
+              Clear LocaleStorage
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
   </body>
 </html>
