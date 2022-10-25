@@ -103,13 +103,7 @@ function signOut() {
 function writeToFireBase(e) {
   e.preventDefault();
 
-  const user = auth.currentUser;
-  console.log('user.uid :>> ', user.uid);
-
-  if (!user) {
-    console.log('User is not logined!');
-    return;
-  }
+  isUserLogenedIn(auth);
 
   const dbData = readDataFormValues(refs.dataForm);
   console.log('dbData :>> ', dbData);
