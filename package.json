@@ -2,20 +2,20 @@
   "name": "parcel-project-template",
   "version": "2.0.0",
   "description": "",
-  "homepage": "https://1leha.github.io/lapDevelopments",
+  "homepage": "https://1leha.github.io/lapDevelopments-",
   "scripts": {
     "start": "parcel src/*.html",
-    "build": "parcel build src/*.html --public-url /lapDevelopments/"
+    "build": "parcel build src/*.html --public-url /lapDevelopments-/"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/1leha/lapDevelopments"
+    "url": "git+https://github.com/1leha/lapDevelopments-"
   },
   "keywords": [],
   "author": "Alexey Lisovoy <alexey.lisovoy2011@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/1leha/lapDevelopments/issues"
+    "url": "https://github.com/1leha/lapDevelopments-/issues"
   },
   "dependencies": {
     "firebase": "^9.12.1",
