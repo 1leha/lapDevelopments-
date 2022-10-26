@@ -1,5 +1,10 @@
 import { app, database } from './firebaseConfig';
 import { ref, set, onValue } from 'firebase/database';
+import {
+  renderAuthDataMarkup,
+  renderFirebaseDataMarkup,
+  renderLocalStorageDataMarkup,
+} from './js/markUps';
 
 import {
   getAuth,
@@ -10,18 +15,29 @@ import {
 } from 'firebase/auth';
 
 const refs = {
+  // Login form elements
   loginForm: document.querySelector('.login-form'),
   dataForm: document.querySelector('.data__form'),
   signUpButton: document.querySelector('button[name="signUpButton"]'),
-  activeUserList: document.querySelector('.active-user__fields'),
+  signInButton: document.querySelector('[data-loginButtonState="signIn"]'),
+  signOutButton: document.querySelector('[data-loginButtonState="signOut"]'),
+  loginInputsBox: document.querySelector('[data-loginInputs]'),
+  loginedUserBox: document.querySelector('[data-loginedUser]'),
+  loginetAs: document.querySelector('[data-loginetAs]'),
 
+  // Data list containers
+  authList: document.querySelector('[data-list="authData"]'),
+  firebaseList: document.querySelector('[data-list="firebaseData"]'),
+  localeStorageList: document.querySelector('[data-list="localeStorageData"]'),
+
+  // Firebase buttons
   saveToFirebaseBtn: document.querySelector('[data-firebase="saveToFirebase"]'),
   readFromFirebaseBtn: document.querySelector(
     '[data-firebase="readFromFirebase"]'
   ),
+  clearLocaleStorageBtn: document.querySelector('[data-localeStorage="clear"]'),
 };
-const auth = getAuth();
-isUserLogenedIn(auth);
+const auth = getAuth(app);
 
 // console.log(refs.saveToFirebase);
 
@@ -29,26 +45,105 @@ refs.loginForm.addEventListener('submit', signInHandler);
 refs.signUpButton.addEventListener('click', signUpHandler);
 refs.saveToFirebaseBtn.addEventListener('click', writeToFireBase);
 refs.readFromFirebaseBtn.addEventListener('click', readFromFireBase);
+refs.signOutButton.addEventListener('click', () => logOff());
+
+// Event Listener for Firebase Auth
+onAuthStateChanged(auth, init);
+
+function init(user) {
+  if (!user) {
+    console.log('User not authtorised');
+    return;
+  }
+
+  readFromFireBase();
+
+  // Rendering Firebase data list
+  changeUserLoginInterface();
+}
+
+function readFromFireBase() {
+  const user = auth.currentUser;
+  console.log('user.uid :>> ', user.uid);
+
+  if (!user) {
+    console.log('User is not logined!');
+    return;
+  }
+
+  // Rendering Auth data list
+  const authUserData = {
+    id: user.uid,
+    name: user.displayName,
+    email: user.email,
+    phone: user.phoneNumber,
+  };
+  changeEmailState(authUserData.email);
+  const dataRef = ref(database, `users/` + user.uid);
+  console.log('data in Firebase :>> ', dataRef);
+  onValue(dataRef, snapshot => {
+    const firebaseData = snapshot.val();
+
+    if (!firebaseData) {
+      // renderAuthDataMarkup(refs.authList, authUserData);
+      // refs.loginetAs.innerHTML = authUserData.email;
+      set(ref(database, `users/` + user.uid), { email: authUserData.email })
+        .then(() => {
+          console.log('database is successfuly written.');
+        })
+        .catch(error => {
+          console.log('Write error :>> ', error);
+        });
+
+      console.log('User database is empty!');
+      return;
+    }
+
+    const emptyData = { name: '', email: '', phone: '', story: '' };
+    console.log('firebaseData :>> ', firebaseData);
+    authUserData.name = firebaseData.name;
+    authUserData.phone = firebaseData.phone;
+
+    renderAuthDataMarkup(refs.authList, authUserData);
+
+    const data = firebaseData ?? emptyData;
+    renderFirebaseDataMarkup(refs.firebaseList, user.uid, data);
+
+    const loginedAs = authUserData.name
+      ? `${authUserData.name} (${authUserData.email})`
+      : authUserData.email;
+    refs.loginetAs.innerHTML = loginedAs;
+  });
+}
+
+function changeUserLoginInterface() {
+  refs.loginInputsBox.classList.toggle('hidden');
+  refs.loginedUserBox.classList.toggle('hidden');
+  refs.signUpButton.classList.toggle('hidden');
+  refs.signInButton.classList.toggle('hidden');
+  refs.signOutButton.classList.toggle('hidden');
+}
+
+function changeEmailState(email) {
+  refs.dataForm.email.value = email;
+}
 
 // Function for new user creation
 function signUpHandler(e) {
   e.preventDefault();
 
-  //   console.log('e.target :>> ', refs.loginForm.elements);
-
   const {
     elements: { userEmail, userPass },
   } = refs.loginForm;
 
-  console.log('userName :>> ', userEmail.value);
-  console.log('userPass :>> ', userPass.value);
   const username = userEmail.value;
   const password = userPass.value;
 
   createUserWithEmailAndPassword(auth, username, password)
     .then(userCredential => {
       const user = userCredential.user;
-      console.log('user :>> ', user);
+      console.log('NEW user :>> ', user);
+      readFromFireBase();
     })
     .catch(error => {
       const errorCode = error.code;
@@ -67,17 +162,13 @@ function signInHandler(e) {
     elements: { userEmail, userPass },
   } = e.currentTarget;
 
-  //   console.log('userName :>> ', userEmail.value);
-  //   console.log('userPass :>> ', userPass.value);
-  const username = userEmail.value;
+  const login = userEmail.value;
   const password = userPass.value;
 
-  //   console.log('Sign In');
-  signInWithEmailAndPassword(auth, username, password)
+  signInWithEmailAndPassword(auth, login, password)
     .then(user => {
       readFromFireBase();
-      //   console.log('user :>> ', user.user);
-      //   console.log('database :>> ', database);
+      // changeUserLoginInterface();
     })
     .catch(error => {
       const errorCode = error.code;
@@ -86,13 +177,19 @@ function signInHandler(e) {
       console.log('errorMessage :>> ', errorMessage);
     });
   e.currentTarget.reset();
+  console.log(refs.signInButton);
 }
 
-function signOut() {
+function logOff() {
   signOut(auth)
     .then(() => {
       // Sign-out successful.
       console.log('Sign-out successful.');
+      renderAuthDataMarkup(refs.authList, {});
+      renderFirebaseDataMarkup(refs.firebaseList, '', {});
+      renderLocalStorageDataMarkup(refs.localeStorageList, '', {});
+      changeUserLoginInterface();
+      changeEmailState('');
     })
     .catch(error => {
       // An error happened.
@@ -102,8 +199,7 @@ function signOut() {
 
 function writeToFireBase(e) {
   e.preventDefault();
-
-  isUserLogenedIn(auth);
+  const user = auth.currentUser;
 
   const dbData = readDataFormValues(refs.dataForm);
   console.log('dbData :>> ', dbData);
@@ -127,72 +223,4 @@ function readDataFormValues(ref) {
     phone: phone.value,
     story: userStory.value,
   };
-}
-
-function readFromFireBase() {
-  const user = auth.currentUser;
-  console.log('user.uid :>> ', user.uid);
-
-  if (!user) {
-    console.log('User is not logined!');
-    return;
-  }
-
-  const dataRef = ref(database, `users/` + user.uid);
-  //   console.log('data in Firebase :>> ', dataRef);
-  onValue(dataRef, snapshot => {
-    const data = snapshot.val();
-    const emptyData = { name: '', email: '', phone: '', story: '' };
-
-    console.log('data :>> ', data ?? emptyData);
-    renderActiveUserMarkup(user.uid, data ?? emptyData);
-  });
-}
-
-function renderActiveUserMarkup(
-  id,
-  { name = '', email = '', phone = '', story = '' }
-) {
-  const markup = ` 
-        <li class="active-user__item">
-          User Id:
-          <span class="active-user__value" data-firebaseValue="id">${id}</span>
-        </li>
-
-        <li class="active-user__item">
-          User name:
-          <span class="active-user__value" data-firebaseValue="Name">${name}</span>
-        </li>
-
-        <li class="active-user__item">
-          E-mail:
-          <span class="active-user__value" data-firebaseValue="email">${email}</span>
-        </li>
-
-        <li class="active-user__item">
-          Phone:
-          <span class="active-user__value" data-firebaseValue="phone">${phone}</span>
-        </li>
-
-        <li class="active-user__item">
-          Story:
-          <span class="active-user__value" data-firebaseValue="story">${story}</span>
-        </li>
-      
-    `;
-
-  refs.activeUserList.innerHTML = markup;
-}
-
-function isUserLogenedIn(auth) {
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      const uid = user.uid;
-      console.log('uid :>> ', uid);
-      readFromFireBase();
-    } else {
-      console.log('user is not logined in!');
-      return;
-    }
-  });
 }

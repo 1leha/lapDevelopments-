@@ -28,7 +28,6 @@ body {
 }
 
 .login-form__button {
-  display: block;
   width: 100%;
   &:not(:last-child) {
     margin-right: 10px;
@@ -79,4 +78,30 @@ body {
   padding: 5px;
   border-radius: 20px;
   color: #fff;
+}
+
+.logined-user {
+  font-size: 12px;
+}
+.logined-user__text {
+  color: #797979;
+}
+.logined-user__user {
+  font-weight: 700;
+}
+
+.active-user {
+  align-items: flex-start;
+}
+
+.active-user__item {
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #888888;
+}
+
+.active-user__value {
+  font-weight: 400;
+  color: black;
 }
