@@ -91,7 +91,7 @@
             <span class="active-user__value" data-firebaseValue="phone"></span>
           </li>
         </ul>
-      </div islogined>
+      </div>
 
       <div class="active-user__data">
         <h3 class="active-user__title">Firebase data</h3>
@@ -164,7 +164,7 @@
 
           <label class="data__label">
             E-mail
-            <input class="data__input" type="email" name="email" disabled/>
+            <input class="data__input" type="email" name="email" disabled />
           </label>
 
           <label class="data__label">
@@ -198,7 +198,11 @@
           </div>
 
           <div class="data__locale-storage-buttons buttons">
-            <button class="locale-storage-button button" type="button">
+            <button
+              class="locale-storage-button button"
+              type="button"
+              data-localeStorage="copyToLocaleStorage"
+            >
               Copy info from Firebase to LocaleStorage
             </button>
             <button
