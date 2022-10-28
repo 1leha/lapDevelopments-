@@ -24,13 +24,15 @@ const emptyData = {
 const refs = {
   // Login form elements
   loginForm: document.querySelector('.login-form'),
-  dataForm: document.querySelector('.data__form'),
   signUpButton: document.querySelector('button[name="signUpButton"]'),
   signInButton: document.querySelector('[data-loginButtonState="signIn"]'),
   signOutButton: document.querySelector('[data-loginButtonState="signOut"]'),
   loginInputsBox: document.querySelector('[data-loginInputs]'),
   loginedUserBox: document.querySelector('[data-loginedUser]'),
   loginetAs: document.querySelector('[data-loginetAs]'),
+
+  // Form used for Firebase filling
+  dataForm: document.querySelector('.data__form'),
 
   // Data list containers
   authList: document.querySelector('[data-list="authData"]'),
@@ -56,7 +58,7 @@ refs.loginForm.addEventListener('submit', signInHandler);
 refs.signOutButton.addEventListener('click', () => logOff());
 refs.signUpButton.addEventListener('click', signUpHandler);
 
-refs.saveToFirebaseBtn.addEventListener('click', writeToFireBase);
+refs.saveToFirebaseBtn.addEventListener('click', saveToFireBaseHandler);
 refs.readFromFirebaseBtn.addEventListener('click', readFromFireBase);
 
 refs.copyToLocaleStorageBtn.addEventListener('click', async () =>
@@ -73,18 +75,15 @@ function getUser() {
   return auth.currentUser;
 }
 
-function getCurrentUserAuthData({ uid, displayName, email, phoneNumber }) {
-  return { id: uid, name: displayName, email: email, phone: phoneNumber };
-}
-
+// Function initialising start
 async function init(user) {
   if (!user) {
     console.log('User not authtorised');
     return;
   }
 
-  renderMarkup.changedUserLoginInterface(refs);
-  const authUserData = getCurrentUserAuthData(user);
+  renderMarkup.loginedUserInterface(refs, user);
+  // const authUserData = getCurrentUserAuthData(user);
 
   const userObj = await readFromFireBase(user);
   // console.log('userObj :>> ', userObj);
@@ -111,6 +110,7 @@ async function init(user) {
   return userObj;
 }
 
+// Function reading Firebase
 async function getFBData(user) {
   const dbRef = ref(database);
 
@@ -119,6 +119,7 @@ async function getFBData(user) {
   return data;
 }
 
+// Function returning obj of userData
 function readFromFireBase(user) {
   // console.log('readFromFireBase(user) :>> ', user);
 
@@ -146,6 +147,7 @@ function readFromFireBase(user) {
   return dbData;
 }
 
+// Function writing data from DataForm to Firebase
 function writeDataToFirebase(userId, dataObj) {
   set(ref(database, `users/${userId}`), dataObj)
     .then(() => {
@@ -206,8 +208,9 @@ function signInHandler(e) {
   e.currentTarget.reset();
 }
 
+// Function for User logout
 async function logOff() {
-  const userID = await getUser().uid;
+  const user = await getUser();
   signOut(auth)
     .then(() => {
       // Sign-out successful.
@@ -215,35 +218,29 @@ async function logOff() {
       renderMarkup.authData(refs.authList, emptyData);
       renderMarkup.firebaseData(refs.firebaseList, emptyData);
       renderMarkup.localStorageData(refs.localeStorageList, '', emptyData);
-      renderMarkup.changedUserLoginInterface(refs);
       renderMarkup.dataToForm(refs, emptyData);
-      localeStorage.remove(userID);
+      localeStorage.remove(user.uid);
+      renderMarkup.loginedUserInterface(refs, getUser());
     })
     .catch(error => {
       // An error happened.
-      console.log('Sign-out error happened.');
-      console.log(error);
+      console.log('Sign-out error happened:', error);
     });
 }
 
-function writeToFireBase(e) {
+// Handler for saving data to Firebase
+function saveToFireBaseHandler(e) {
   e.preventDefault();
-  const user = auth.currentUser;
+  const user = getUser();
 
   const dataFormValues = readDataFormValues(refs.dataForm);
-  // console.log('dbData :>> ', dbData);
-
-  set(ref(database, `users/` + user.uid), dataFormValues)
-    .then(() => {
-      console.log('database is successfuly written.');
-    })
-    .catch(error => {
-      console.log('Write error :>> ', error);
-    });
+  writeDataToFirebase(user.uid, dataFormValues);
 
   refs.dataForm.reset();
+  init(user);
 }
 
+// Function making obj from data fields of DataForm
 function readDataFormValues(ref) {
   const { userName, email, phone, userStory } = ref.elements;
   return {
@@ -253,46 +250,3 @@ function readDataFormValues(ref) {
     story: userStory.value,
   };
 }
-
-// function OLDreadFromFireBase(user) {
-//   console.log('readFromFireBase(user) :>> ', user);
-
-//   const dataRef = ref(database, `users/` + user.id);
-//   onValue(dataRef, snapshot => {
-//     const firebaseData = snapshot.val();
-
-//     if (!firebaseData) {
-//       set(ref(database, `users/` + user.id), { email: user.email })
-//         .then(() => {
-//           console.log('database is successfuly written.');
-//         })
-//         .catch(error => {
-//           console.log('Write error :>> ', error);
-//         });
-
-//       console.log('User database is empty!');
-//     }
-
-//     console.log('firebaseData :>> ', firebaseData);
-
-//     user.name = firebaseData.name;
-//     user.phone = firebaseData.phone;
-
-//     renderAuthDataMarkup(refs.authList, user);
-
-//     const data = firebaseData ?? emptyData;
-//     renderFirebaseDataMarkup(refs.firebaseList, user.id, data);
-
-//     const loginedAs = user.name ? `${user.name} (${user.email})` : user.email;
-
-//     const obj = {
-//       id: 0,
-//       isNewUser: false,
-//       name: 1,
-//       email: 2,
-//       phone: 3,
-//     };
-
-//     return obj;
-//   });
-// }

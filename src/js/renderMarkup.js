@@ -102,12 +102,21 @@ function loginedAs(ref, fieldText) {
   ref.innerHTML = fieldText;
 }
 
-function changedUserLoginInterface(refs) {
-  refs.loginInputsBox.classList.toggle('hidden');
-  refs.loginedUserBox.classList.toggle('hidden');
-  refs.signUpButton.classList.toggle('hidden');
-  refs.signInButton.classList.toggle('hidden');
-  refs.signOutButton.classList.toggle('hidden');
+function loginedUserInterface(refs, isUserLoginedIn) {
+  // console.log('isUserLoginedIn :>> ', isUserLoginedIn);
+  if (isUserLoginedIn) {
+    refs.loginInputsBox.classList.add('hidden');
+    refs.signUpButton.classList.add('hidden');
+    refs.signInButton.classList.add('hidden');
+    refs.loginedUserBox.classList.remove('hidden');
+    refs.signOutButton.classList.remove('hidden');
+  } else {
+    refs.loginInputsBox.classList.remove('hidden');
+    refs.signUpButton.classList.remove('hidden');
+    refs.signInButton.classList.remove('hidden');
+    refs.loginedUserBox.classList.add('hidden');
+    refs.signOutButton.classList.add('hidden');
+  }
 }
 
 function dataToForm(refs, { name = '', email = '', phone = '', story = '' }) {
@@ -122,6 +131,6 @@ export default {
   localStorageData,
   firebaseData,
   authData,
-  changedUserLoginInterface,
+  loginedUserInterface,
   dataToForm,
 };
