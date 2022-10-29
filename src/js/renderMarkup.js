@@ -1,3 +1,5 @@
+import refs from './refs';
+
 function authData(
   target,
   { id, authData: { name = '', email = '', phone = '' } }
